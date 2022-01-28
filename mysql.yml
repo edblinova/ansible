@@ -1,0 +1,30 @@
+---
+- hosts: test
+  become: yes
+  gather_facts: false
+
+  tasks:
+
+  - name: Installing MySQL
+    apt:
+      name: mysql-client-core-8.0
+      state: present
+      update_cache: true
+
+
+  - name: Installing server&client
+    shell: apt-get install -y mysql-server mysql-client
+
+  - name: Start mysql
+    shell: service mysql start
+    register: mysql_start
+
+  - name: Debug mysql_start
+    debug: var=mysql_start.stdout_lines
+
+  - name: Status mysql
+    shell: systemctl status mysql
+    register: status_mysql
+
+  - name: Debug status_mysql
+    debug: var=status_mysql.stdout_lines
