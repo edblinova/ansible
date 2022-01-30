@@ -1,0 +1,38 @@
+---
+# tasks file for php
+- name: Installing nginx
+  apt:
+    name: nginx
+    state: present
+
+- name: Starting nginx
+  service:
+    name: nginx
+    state: started
+    enabled: yes
+
+- name: Creating dir
+  file:
+    path: /usr/share/nginx/html
+    state: directory
+
+- name: Creating index_php
+  copy:
+    content: "<?php phpinfo();?>"
+    dest: /usr/share/nginx/html/index.php
+
+- name: Setting config-file
+  copy:
+    src: nginx.conf
+    dest: /etc/nginx/nginx.conf
+
+- name: Installing php-fpm
+  apt:
+    name: php-fpm
+    state: present
+
+- name: Starting php-fpm
+  service:
+    name: php7.4-fpm
+    state: started
+    enabled: yes
