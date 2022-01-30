@@ -11,9 +11,12 @@
     state: started
     enabled: yes
 
-- name: Setting configuration
-  template:
-    src: templates/etc_dnsmasq.conf.j2
+- name: Setting config-file
+  copy:
+    src: dnsmasq.conf
     dest: /etc/dnsmasq.conf
-    validate: 'dnsmasq --test --conf-file=%s'
-  notify: restart dnsmasq
+
+- name: Restarting dnsmasq
+  service:
+    name: dnsmasq
+    state: restarted
