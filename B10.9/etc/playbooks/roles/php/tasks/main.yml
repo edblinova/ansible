@@ -36,3 +36,11 @@
     name: php7.4-fpm
     state: started
     enabled: yes
+
+- name: Creating DocumentRoot
+  file:
+    path: /opt/nginx/ansible
+    state: directory
+  notify:
+    - restart nginx
+ 
