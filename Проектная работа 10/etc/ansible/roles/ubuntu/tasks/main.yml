@@ -1,0 +1,20 @@
+---
+- name: Install Docker
+  apt:
+    name: docker.io
+    state: present
+    update_cache: true
+
+- name: Status Docker
+  shell: systemctl status docker
+  register: status_docker
+
+- name: Debug status_docker
+  debug: var=status_docker.stdout_lines
+
+- name: Check Docker
+  shell: docker run hello-world
+  register: hello_world
+
+- name: Debug hello_world
+  debug: var=hello_world.stdout_lines
