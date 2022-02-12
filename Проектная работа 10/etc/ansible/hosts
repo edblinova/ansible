@@ -1,0 +1,14 @@
+[database]
+vm1 ansible_host=84.201.177.240 ansible_user=ubuntu
+
+[web]
+vm1 ansible_host=84.201.177.240 ansible_user=ubuntu
+
+[app]
+vm2 ansible_host=51.250.23.213 ansible_user=ubuntu
+vm3 ansible_host=84.201.178.98 ansible_user=ubuntu
+
+
+[database:vars]
+version=12
+dir=/etc/ans/postgres
