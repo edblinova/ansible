@@ -1,0 +1,68 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: create the 'ubuntu' user
+      user: name=ubuntu append=yes state=present createhome=yes shell=/bin/bash
+
+    - name: allow 'ubuntu' to have passwordless sudo
+      lineinfile:
+        dest: /etc/sudoers
+        line: 'ubuntu ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+
+    - name: set up authorized keys for the ubuntu user
+      authorized_key: user=ubuntu key="{{item}}"
+      with_file:
+        - ~/.ssh/id_rsa.pub
+
+- hosts: app
+  become: yes
+  gather_facts: yes
+
+  roles:
+    - prep
+    - { role: centos, when: ansible_distribution == "CentOS" }
+    - { role: ubuntu, when: ansible_distribution == "Ubuntu" }
+  
+
+- hosts: database
+  become: yes
+  gather_facts: false
+
+  tasks:
+
+  - name: Uninstall previous versions
+    apt:
+      name: postgresql-{{version}}
+      state: absent
+      update_cache: true
+
+  - name: Install the version of postgresql
+    apt:
+      name: postgresql-{{version}}
+      state: present
+      update_cache: true
+
+  - name: Check postgresql
+    service:
+      name: postgresql
+      state: started
+
+  - name: Stop postgresql
+    shell: systemctl stop postgresql
+
+  - name: Create new data-directory
+    file:
+      path: "{{dir}}"
+      state: directory
+
+  - name: Change data-directory
+    lineinfile:
+      path: /etc/postgresql/{{version}}/main/postgresql.conf
+      regexp: "^(.*)data_directory(.*)$"
+      line: "data_directory = '{{dir}}'"
+      backrefs: yes
+
+  - name: Restart postgresql
+    shell: systemctl restart postgresql
